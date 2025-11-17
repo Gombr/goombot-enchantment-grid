@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enchantment Grid Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #000 0%, #0c102f 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .sidebar {
+      background: rgba(43, 45, 49, 0.95);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 20px;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+
+    .grid-wrapper {
+      background: rgba(43, 45, 49, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .search-box::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .card-list {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .card-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .card-item:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateX(5px);
+    }
+
+    .card-item.selected {
+      background: #667eea;
+      border: 2px solid #fff;
+    }
+
+    .info-text {
+      background: rgba(102, 126, 234, 0.2);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .enchantment-grid {
+      display: grid;
+      grid-template-columns: 120px repeat(9, 1fr);
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    .grid-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      padding: 5px;
+    }
+
+    .grid-label.corner {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 8px;
+    }
+
+    .grid-label.row {
+      background: rgba(102, 126, 234, 0.5);
+      border-radius: 8px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+
+    .grid-label.col {
+      background: rgba(102, 126, 234, 0.5);
+      border-radius: 8px;
+    }
+
+    .grid-cell {
+      position: relative;
+      aspect-ratio: 267 / 402;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .grid-cell canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .loading-text {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.6);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Enchantment Grid Viewer</h1>
+    
+    <div class="main-layout">
+      <div class="sidebar">
+        <h2>Card Selection</h2>
+        <div class="info-text">
+          Select a card to view all possible enchantment combinations.
+        </div>
+        <input type="text" class="search-box" id="cardSearch" placeholder="Search cards...">
+        <div class="card-list" id="cardList"></div>
+      </div>
+
+      <div class="grid-wrapper">
+        <div id="gridContainer">
+          <div class="loading-text">Select a card to view enchantment combinations</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="enchantment-effects.js"></script>
+  <script>
+    const cardPool = [
+      { name: "Mario", rarity: "Common" },
+      { name: "Yoshi", rarity: "Common" },
+      { name: "Magikoopa", rarity: "Uncommon" },
+      { name: "Dry Bones", rarity: "Uncommon" },
+      { name: "Koopa", rarity: "Common" },
+      { name: "Luigi", rarity: "Common" },
+      { name: "Peach", rarity: "Common" },
+      { name: "Shadow Mario", rarity: "Rare" },
+      { name: "Bowser", rarity: "Uncommon" },
+      { name: "Daisy", rarity: "Common" },
+      { name: "Shy Guy", rarity: "Common" },
+      { name: "Sniffit", rarity: "Rare" },
+      { name: "Metal Yoshi", rarity: "Legendary" },
+      { name: "Petey Piranha", rarity: "Rare" },
+      { name: "Pink Menace", rarity: "Uncommon" },
+      { name: "Red Noki", rarity: "Uncommon" },
+      { name: "Green Noki", rarity: "Uncommon" },
+      { name: "Blue Noki", rarity: "Uncommon" },
+      { name: "Blue Blob", rarity: "Uncommon" },
+      { name: "Yellow Fellow", rarity: "Uncommon" },
+      { name: "Boo", rarity: "Uncommon" },
+      { name: "Blooper", rarity: "Common" },
+      { name: "Cheep Cheep", rarity: "Common" },
+      { name: "Spy Fox", rarity: "Legendary" },
+      { name: "Boo Enthusiast", rarity: "Legendary" },
+      { name: "Mel Shark", rarity: "Legendary" },
+      { name: "Goombna", rarity: "Legendary" },
+      { name: "Goomba", rarity: "Common" },
+      { name: "Saul GoodPin", rarity: "Ultra Rare" },
+      { name: "Rio Mushroom", rarity: "Ultra Rare" },
+      { name: "Birdo", rarity: "Uncommon" },
+      { name: "Monty Mole", rarity: "Common" },
+      { name: "Paratroopa", rarity: "Common" },
+      { name: "Neil", rarity: "Ultra Rare" },
+      { name: "Ella", rarity: "Ultra Rare" },
+      { name: "Putts", rarity: "Ultra Rare" },
+      { name: "Lakitu Valley", rarity: "Uncommon" },
+      { name: "Cheep Cheep Falls", rarity: "Uncommon" },
+      { name: "Shifting Sands", rarity: "Uncommon" },
+      { name: "Blooper Bay", rarity: "Uncommon" },
+      { name: "Peach's Castle Grounds", rarity: "Uncommon" },
+      { name: "Bowser Badlands", rarity: "Uncommon" },
+      { name: "Congo Canopy", rarity: "Uncommon" },
+      { name: "Chain Chomp", rarity: "Rare" },
+      { name: "Bob-Omb", rarity: "Uncommon" },
+      { name: "Bowser Jr.", rarity: "Uncommon" },
+      { name: "Floofy Flareon", rarity: "Legendary" },
+      { name: "Toasty Tour 100", rarity: "Legendary" },
+      { name: "KamiGoat", rarity: "Legendary" },
+      { name: "This Game Is !@#", rarity: "Legendary" },
+      { name: "Whomp", rarity: "Uncommon" },
+      { name: "Thwomp", rarity: "Uncommon" },
+      { name: "Wario", rarity: "Common" },
+      { name: "Waluigi", rarity: "Common" },
+      { name: "Toad", rarity: "Common" },
+      { name: "Toadsworth", rarity: "Uncommon" },
+      { name: "Big Bertha", rarity: "Rare" },
+      { name: "Piranha Plant", rarity: "Common" },
+      { name: "Paragoomba", rarity: "Common" },
+      { name: "Dixie Kong", rarity: "Uncommon" },
+      { name: "Toadette", rarity: "Uncommon" },
+      { name: "Professor E. Gadd", rarity: "Ultra Rare" },
+      { name: "Cataquack", rarity: "Uncommon" },
+      { name: "French Cat", rarity: "Ultra Rare" },
+      { name: "No Wind", rarity: "Uncommon" },
+      { name: "Pistol", rarity: "Ultra Rare" },
+      { name: "Pete", rarity: "Ultra Rare" },
+      { name: "Luna", rarity: "Ultra Rare" },
+      { name: "Sylvia", rarity: "Ultra Rare" },
+      { name: "Bobbie", rarity: "Ultra Rare" },
+      { name: "Loochie", rarity: "Ultra Rare" },
+      { name: "Pemdy", rarity: "Ultra Rare" },
+      { name: "Sophie", rarity: "Ultra Rare" },
+      { name: "Lakitu", rarity: "Uncommon" },
+      { name: "Donkey Kong", rarity: "Common" },
+      { name: "Diddy Kong", rarity: "Uncommon" },
+      { name: "Boomerang Bro", rarity: "Rare" },
+      { name: "Hammer Bro", rarity: "Rare" },
+      { name: "Fire Bro", rarity: "Rare" },
+      { name: "King Boo", rarity: "Rare" },
+      { name: "Klepto", rarity: "Rare" },
+      { name: "Tweester", rarity: "Rare" },
+      { name: "Phanto", rarity: "Rare" },
+      { name: "Pokey", rarity: "Common" },
+      { name: "Mad Piano", rarity: "Ultra Rare" },
+      { name: "Hydra Part 1", rarity: "Ultra Rare" },
+      { name: "Hydra Part 2", rarity: "Ultra Rare" },
+      { name: "Hydra Part 3", rarity: "Ultra Rare" },
+      { name: "Dragoon Part 1", rarity: "Ultra Rare" },
+      { name: "Dragoon Part 2", rarity: "Ultra Rare" },
+      { name: "Dragoon Part 3", rarity: "Ultra Rare" },
+      { name: "Slice 20XX", rarity: "Rare" },
+      { name: "Toasty", rarity: "Legendary" },
+      { name: "Albert Ross", rarity: "Rare" },
+      { name: "New Netplayer", rarity: "Common" },
+      { name: "Headphones", rarity: "Common" },
+      { name: "Ethernet Cable", rarity: "Common" },
+      { name: "Boshi", rarity: "Rare" },
+      { name: "True...", rarity: "Rare" },
+      { name: "Coin", rarity: "Common" },
+      { name: "Homerun", rarity: "Common" },
+      { name: "mel's garage", rarity: "Legendary" },
+      { name: "Dole Banana", rarity: "Uncommon" },
+      { name: "AiAi", rarity: "Common" },
+      { name: "Vivian", rarity: "Ultra Rare" },
+      { name: "Goth Daisy", rarity: "Ultra Rare" },
+      { name: "Goombot", rarity: "Legendary" },
+      { name: "Crater", rarity: "Common" },
+      { name: "Shadow Queen", rarity: "Legendary" },
+      { name: "King Bob-Omb", rarity: "Rare" },
+      { name: "Wiggler", rarity: "Common" },
+      { name: "FLUDD", rarity: "Ultra Rare" },
+      { name: "Spiny", rarity: "Common" },
+      { name: "Pauline", rarity: "Uncommon" },
+      { name: "Fire Flower", rarity: "Common" },
+      { name: "Banana Peel", rarity: "Common" },
+      { name: "Power Star", rarity: "Rare" },
+      { name: "Kirby", rarity: "Uncommon" },
+      { name: "Waddle Dee", rarity: "Common" },
+      { name: "Fox Shine", rarity: "Rare" },
+      { name: "Meta Knight", rarity: "Rare" },
+      { name: "King DeDeDe", rarity: "Rare" },
+      { name: "ROB", rarity: "Rare" },
+      { name: "Hidden Block", rarity: "Rare" },
+      { name: "Captain Falcon", rarity: "Ultra Rare" },
+      { name: "Sand Bird", rarity: "Ultra Rare" },
+      { name: "Ninji", rarity: "Common" },
+      { name: "Bullet Bill Blaster", rarity: "Common" },
+      { name: "Pidgit", rarity: "Uncommon" },
+      { name: "Green Bird", rarity: "Uncommon" },
+      { name: "Red Bird", rarity: "Common" },
+      { name: "Blue Bird", rarity: "Rare" },
+      { name: "Mario Power Tennis for the Nintendo GameCube", rarity: "Legendary" },
+      { name: "Happy Gilmore", rarity: "Legendary" },
+      { name: "Tabuu", rarity: "Legendary" },
+      { name: "1 Wood", rarity: "Uncommon" },
+      { name: "3 Iron", rarity: "Uncommon" },
+      { name: "Sand Wedge", rarity: "Uncommon" },
+      { name: "Mecha Bowser", rarity: "Rare" },
+      { name: "Angry Sun", rarity: "Rare" },
+      { name: "Rosalina", rarity: "Uncommon" },
+      { name: "Midna", rarity: "Ultra Rare" },
+      { name: "Dorrie", rarity: "Ultra Rare" },
+      { name: "Kung Fu Koopa", rarity: "Uncommon" },
+      { name: "Skeeter", rarity: "Rare" },
+      { name: "Freezie", rarity: "Rare" },
+      { name: "Negative Blueprint", rarity: "Legendary" },
+      { name: "Patrick Piranha", rarity: "Legendary" },
+      { name: "Benny's Broken Club", rarity: "Legendary" },
+      { name: "Blue Space", rarity: "Common" },
+      { name: "Fly Guy", rarity: "Uncommon" },
+      { name: "Proto Piranha", rarity: "Uncommon" },
+      { name: "Mr. Blizzard", rarity: "Common" },
+      { name: "Sandbag", rarity: "Common" },
+      { name: "Bases Loaded", rarity: "Uncommon" },
+      { name: "Buzzy Beetle", rarity: "Common" },
+      { name: "ISO File", rarity: "Uncommon" },
+      { name: "Scuttlebug", rarity: "Uncommon" },
+      { name: "Bosco", rarity: "Ultra Rare" },
+      { name: "Astolfo", rarity: "Legendary" },
+      { name: "Ukiki", rarity: "Uncommon" },
+      { name: "Fake Item Box", rarity: "Common" },
+      { name: "MIPS", rarity: "Rare" },
+      { name: "AYY LMAO", rarity: "Ultra Rare" },
+      { name: "Delivery Guy who found your house", rarity: "Rare" },
+      { name: "Third Try USB Plug", rarity: "Common" },
+      { name: "Power Shot", rarity: "Uncommon" },
+      { name: "PictoChat", rarity: "Rare" },
+      { name: "Final Destination", rarity: "Rare" },
+      { name: "Comet Observatory", rarity: "Rare" },
+      { name: "Dart Monkey", rarity: "Common" },
+      { name: "Glitzville", rarity: "Uncommon" },
+      { name: "Edging", rarity: "Common" },
+      { name: "Open the Case", rarity: "Legendary" },
+      { name: "Amazy Dayzee", rarity: "Ultra Rare" },
+      { name: "1-Up Mushroom", rarity: "Combo" },
+      { name: "Perfect RNG", rarity: "Combo" },
+      { name: "Hydra", rarity: "Combo" },
+      { name: "Dragoon", rarity: "Combo" },
+      { name: "The Ultimate Pet", rarity: "Combo" },
+      { name: "Pianta League", rarity: "Combo" },
+      { name: "Core Gamer", rarity: "Combo" },
+      { name: "Rio Hall of Famer", rarity: "Combo" },
+      { name: "Gauntlet", rarity: "Combo" },
+      { name: "Yellow Bird", rarity: "Combo" },
+      { name: "Master Hand", rarity: "Combo" },
+      { name: "Dyna Blade", rarity: "Combo" },
+      { name: "Subspace", rarity: "Combo" },
+      { name: "Shine Sprite", rarity: "Combo" },
+      { name: "100% Save File", rarity: "Combo" },
+      { name: "Scuttlebug Jamboree", rarity: "Combo" },
+      { name: "Minion Army", rarity: "Combo" },
+      { name: "BLJ", rarity: "Combo" },
+      { name: "Mario Golf Toadstool Tour for the Nintendo GameCube", rarity: "Combo" },
+      { name: "Banana Sanctuary", rarity: "Combo" },
+      { name: "Mario Sports Holy Trinity", rarity: "Combo" },
+      { name: "Rainbow Road", rarity: "exclusive", borderless: true },
+      { name: "Fury Bowser", rarity: "exclusive", borderless: true },
+      { name: "Sunshine Mario", rarity: "exclusive", borderless: true },
+      { name: "Mario Superstar Baseball for the Nintendo GameCube", rarity: "exclusive", borderless: true }
+    ];
+
+    const enchantments = [
+      'None',
+      'Abyssal Vision',
+      'Golden Bloom',
+      'Infernal Chaos',
+      'Magical Whimsy',
+      'Deepfried',
+      'Holographic',
+      'Negative',
+      'Ethereal Mist'
+    ];
+
+    const CARD_WIDTH = 267;
+    const CARD_HEIGHT = 402;
+
+    let selectedCard = null;
+    const imageCache = {};
+
+    function loadImage(src) {
+      if (imageCache[src]) return Promise.resolve(imageCache[src]);
+      
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          imageCache[src] = img;
+          resolve(img);
+        };
+        img.onerror = () => reject();
+        img.src = src;
+      });
+    }
+
+    function populateCardList(search = '') {
+      const list = document.getElementById('cardList');
+      list.innerHTML = '';
+      
+      const filtered = cardPool.filter(card => 
+        card.name.toLowerCase().includes(search.toLowerCase())
+      );
+
+      filtered.forEach(card => {
+        const item = document.createElement('div');
+        item.className = 'card-item';
+        if (selectedCard === card.name) {
+          item.classList.add('selected');
+        }
+        item.textContent = card.name;
+        
+        item.addEventListener('click', () => {
+          selectedCard = card.name;
+          populateCardList(search);
+          renderGrid();
+        });
+
+        list.appendChild(item);
+      });
+    }
+
+    async function renderCardWithEnchantments(cardName, enchant1, enchant2) {
+      const card = cardPool.find(c => c.name === cardName);
+      if (!card) return null;
+
+      try {
+        const cardImg = await loadImage(`Images/${cardName}.png`);
+        
+        let processedCardImg = cardImg;
+        
+        if (enchant1 && enchant1 !== 'None') {
+          const enchantCanvas = document.createElement('canvas');
+          enchantCanvas.width = processedCardImg.width;
+          enchantCanvas.height = processedCardImg.height;
+          const enchantCtx = enchantCanvas.getContext('2d');
+          enchantCtx.drawImage(processedCardImg, 0, 0);
+          
+          const imageData = enchantCtx.getImageData(0, 0, enchantCanvas.width, enchantCanvas.height);
+          
+          applyEnchantmentEffects(imageData, enchant1);
+          applyEnchantedNameTag(imageData, imageData.width, imageData.height);
+          
+          enchantCtx.putImageData(imageData, 0, 0);
+          
+          processedCardImg = new Image();
+          processedCardImg.src = enchantCanvas.toDataURL();
+          await new Promise(resolve => processedCardImg.onload = resolve);
+        }
+        
+        if (enchant2 && enchant2 !== 'None') {
+          const enchantCanvas2 = document.createElement('canvas');
+          enchantCanvas2.width = processedCardImg.width;
+          enchantCanvas2.height = processedCardImg.height;
+          const enchantCtx2 = enchantCanvas2.getContext('2d');
+          enchantCtx2.drawImage(processedCardImg, 0, 0);
+          
+          const imageData2 = enchantCtx2.getImageData(0, 0, enchantCanvas2.width, enchantCanvas2.height);
+          
+          applyEnchantmentEffects(imageData2, enchant2);
+          applyEnchantedNameTag(imageData2, imageData2.width, imageData2.height);
+          
+          enchantCtx2.putImageData(imageData2, 0, 0);
+          
+          processedCardImg = new Image();
+          processedCardImg.src = enchantCanvas2.toDataURL();
+          await new Promise(resolve => processedCardImg.onload = resolve);
+        }
+
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = CARD_WIDTH;
+        finalCanvas.height = CARD_HEIGHT;
+        const finalCtx = finalCanvas.getContext('2d');
+
+        if (!card.borderless) {
+          const innerW = Math.floor(CARD_WIDTH * 0.9);
+          const innerH = Math.floor(CARD_HEIGHT * 0.9);
+          const offsetX = Math.floor((CARD_WIDTH - innerW) / 2);
+          const offsetY = Math.floor((CARD_HEIGHT - innerH) / 2);
+
+          finalCtx.drawImage(processedCardImg, 0, 0, processedCardImg.width, processedCardImg.height, offsetX, offsetY, innerW, innerH);
+
+          try {
+            const rarityImg = await loadImage(`Images/${card.rarity}.png`);
+            finalCtx.drawImage(rarityImg, 0, 0, rarityImg.width, rarityImg.height, offsetX, offsetY, innerW, innerH);
+          } catch (e) {}
+        } else {
+          finalCtx.drawImage(processedCardImg, 0, 0, processedCardImg.width, processedCardImg.height, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+        }
+
+        return finalCanvas;
+      } catch (e) {
+        console.error('Error rendering card:', cardName, e);
+        return null;
+      }
+    }
+
+    async function renderGrid() {
+      const container = document.getElementById('gridContainer');
+      
+      if (!selectedCard) {
+        container.innerHTML = '<div class="loading-text">Select a card to view enchantment combinations</div>';
+        return;
+      }
+
+      container.innerHTML = '<div class="loading-text">Generating enchantment grid...</div>';
+
+      const gridDiv = document.createElement('div');
+      gridDiv.className = 'enchantment-grid';
+
+      const cornerLabel = document.createElement('div');
+      cornerLabel.className = 'grid-label corner';
+      cornerLabel.textContent = 'Enchant 2 → Enchant 1 ↓';
+      gridDiv.appendChild(cornerLabel);
+
+      enchantments.forEach(enchant => {
+        const label = document.createElement('div');
+        label.className = 'grid-label col';
+        label.textContent = enchant;
+        gridDiv.appendChild(label);
+      });
+
+      for (let rowIdx = 0; rowIdx < enchantments.length; rowIdx++) {
+        const enchant1 = enchantments[rowIdx];
+        
+        const rowLabel = document.createElement('div');
+        rowLabel.className = 'grid-label row';
+        rowLabel.textContent = enchant1;
+        gridDiv.appendChild(rowLabel);
+
+        for (let colIdx = 0; colIdx < enchantments.length; colIdx++) {
+          const enchant2 = enchantments[colIdx];
+          
+          const cell = document.createElement('div');
+          cell.className = 'grid-cell';
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = CARD_WIDTH;
+          canvas.height = CARD_HEIGHT;
+          cell.appendChild(canvas);
+          
+          gridDiv.appendChild(cell);
+        }
+      }
+
+      container.innerHTML = '';
+      container.appendChild(gridDiv);
+
+      for (let rowIdx = 0; rowIdx < enchantments.length; rowIdx++) {
+        const enchant1 = enchantments[rowIdx];
+        
+        for (let colIdx = 0; colIdx < enchantments.length; colIdx++) {
+          const enchant2 = enchantments[colIdx];
+          
+          const gridIndex = (rowIdx + 1) * (enchantments.length + 1) + (colIdx + 1);
+          const cell = gridDiv.children[gridIndex];
+          const canvas = cell.querySelector('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          const renderedCard = await renderCardWithEnchantments(selectedCard, enchant1, enchant2);
+          
+          if (renderedCard) {
+            ctx.drawImage(renderedCard, 0, 0);
+          } else {
+            ctx.fillStyle = '#2b2d31';
+            ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Error', CARD_WIDTH / 2, CARD_HEIGHT / 2);
+          }
+        }
+      }
+    }
+
+    function init() {
+      populateCardList();
+      
+      document.getElementById('cardSearch').addEventListener('input', (e) => {
+        populateCardList(e.target.value);
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
