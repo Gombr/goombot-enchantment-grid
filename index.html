@@ -452,6 +452,29 @@
         card.name.toLowerCase().includes(search.toLowerCase())
       );
 
+      // Define rarity order
+      const rarityOrder = {
+        'Common': 1,
+        'Uncommon': 2,
+        'Rare': 3,
+        'Ultra Rare': 4,
+        'Legendary': 5,
+        'exclusive': 6,
+        'Combo': 7
+      };
+
+      // Sort by rarity then alphabetically
+      filtered.sort((a, b) => {
+        const rarityA = rarityOrder[a.rarity] || 999;
+        const rarityB = rarityOrder[b.rarity] || 999;
+        
+        if (rarityA !== rarityB) {
+          return rarityA - rarityB;
+        }
+        
+        return a.name.localeCompare(b.name);
+      });
+
       filtered.forEach(card => {
         const item = document.createElement('div');
         item.className = 'card-item';
@@ -626,8 +649,26 @@
     function init() {
       populateCardList();
       
-      document.getElementById('cardSearch').addEventListener('input', (e) => {
+      const searchBox = document.getElementById('cardSearch');
+      
+      searchBox.addEventListener('input', (e) => {
         populateCardList(e.target.value);
+      });
+      
+      searchBox.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const searchTerm = e.target.value.trim();
+          const exactMatch = cardPool.find(card => 
+            card.name.toLowerCase() === searchTerm.toLowerCase()
+          );
+          
+          if (exactMatch) {
+            selectedCard = exactMatch.name;
+            populateCardList(searchTerm);
+            renderGrid();
+            searchBox.blur(); // Optional: remove focus from search box
+          }
+        }
       });
     }
 
