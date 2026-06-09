@@ -101,6 +101,40 @@
       border: 2px solid #fff;
     }
 
+    .season-filters {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .season-btn {
+      flex: 1;
+      padding: 7px 4px;
+      border: 2px solid rgba(102, 126, 234, 0.5);
+      border-radius: 7px;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .season-btn:hover {
+      background: rgba(102, 126, 234, 0.3);
+      color: #fff;
+      border-color: #667eea;
+    }
+
+    .season-btn.active {
+      background: #667eea;
+      border-color: #667eea;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+    }
+
     .info-text {
       background: rgba(102, 126, 234, 0.2);
       padding: 12px;
@@ -196,6 +230,11 @@
           Select a card to view all possible enchantment combinations.
         </div>
         <input type="text" class="search-box" id="cardSearch" placeholder="Search cards...">
+        <div class="season-filters">
+          <button class="season-btn active" data-season="all">All</button>
+          <button class="season-btn" data-season="1+2">Season 1+2</button>
+          <button class="season-btn" data-season="3">Season 3</button>
+        </div>
         <div class="card-list" id="cardList"></div>
       </div>
 
@@ -561,6 +600,161 @@
   { name: "Warp Whistle", rarity: "exclusive", borderless: true, season: 2 },
   { name: "Geno", rarity: "exclusive", borderless: true, season: 2 },
   { name: "Homebrew", rarity: "exclusive", borderless: true, season: 2 },
+      // Season 3 Cards
+      { name: "Ape Escape", rarity: "Combo", season: 3 },
+      { name: "Broque Monsieur", rarity: "Combo", season: 3 },
+      { name: "Crazy Redd", rarity: "Combo", season: 3 },
+      { name: "Fox Den Trio", rarity: "Combo", season: 3 },
+      { name: "Grand Star", rarity: "Combo", season: 3 },
+      { name: "Meme Folder", rarity: "Combo", season: 3 },
+      { name: "MGTT Grill", rarity: "Combo", season: 3 },
+      { name: "Baby Luigi", rarity: "Common", season: 3 },
+      { name: "Baby Mario", rarity: "Common", season: 3 },
+      { name: "Beanie", rarity: "Common", season: 3 },
+      { name: "Bill Board", rarity: "Common", season: 3 },
+      { name: "Bobble", rarity: "Common", season: 3 },
+      { name: "Bogey", rarity: "Common", season: 3 },
+      { name: "Bonus Chance", rarity: "Common", season: 3 },
+      { name: "CW Smith", rarity: "Common", season: 3 },
+      { name: "Doogan", rarity: "Common", season: 3 },
+      { name: "Doubles", rarity: "Common", season: 3 },
+      { name: "Flippy", rarity: "Common", season: 3 },
+      { name: "Frolf", rarity: "Common", season: 3 },
+      { name: "Fronk", rarity: "Common", season: 3 },
+      { name: "Gandalf", rarity: "Common", season: 3 },
+      { name: "Gearmo", rarity: "Common", season: 3 },
+      { name: "Good Answer", rarity: "Common", season: 3 },
+      { name: "Guide", rarity: "Common", season: 3 },
+      { name: "Interactive Buddy", rarity: "Common", season: 3 },
+      { name: "Metroid", rarity: "Common", season: 3 },
+      { name: "Mettaur", rarity: "Common", season: 3 },
+      { name: "Mr. Resetti", rarity: "Common", season: 3 },
+      { name: "Octoman", rarity: "Common", season: 3 },
+      { name: "Primid", rarity: "Common", season: 3 },
+      { name: "Punio", rarity: "Common", season: 3 },
+      { name: "Raphael", rarity: "Common", season: 3 },
+      { name: "Reyn", rarity: "Common", season: 3 },
+      { name: "Scorecard", rarity: "Common", season: 3 },
+      { name: "Smash Ball", rarity: "Common", season: 3 },
+      { name: "Spoils Bag", rarity: "Common", season: 3 },
+      { name: "SpongeBob", rarity: "Common", season: 3 },
+      { name: "Strawberry Cow", rarity: "Common", season: 3 },
+      { name: "Strike", rarity: "Common", season: 3 },
+      { name: "Tier List", rarity: "Common", season: 3 },
+      { name: "Wingull", rarity: "Common", season: 3 },
+      { name: "Yarn Poochy", rarity: "Common", season: 3 },
+      { name: "Gameboy Advance SP", rarity: "exclusive", borderless: true, season: 3 },
+      { name: "Goombot Microwaves You", rarity: "exclusive", borderless: true, season: 3 },
+      { name: "King Harkinian", rarity: "exclusive", borderless: true, season: 3 },
+      { name: "Mover", rarity: "exclusive", borderless: true, season: 3 },
+      { name: "Ankha", rarity: "Legendary", season: 3 },
+      { name: "Bowser Suit", rarity: "Legendary", season: 3 },
+      { name: "Bowsette", rarity: "Legendary", season: 3 },
+      { name: "Despite all my rage", rarity: "Legendary", season: 3 },
+      { name: "Elaenor", rarity: "Legendary", season: 3 },
+      { name: "Liberty 1909", rarity: "Legendary", season: 3 },
+      { name: "Line Rider", rarity: "Legendary", season: 3 },
+      { name: "Party Phil", rarity: "Legendary", season: 3 },
+      { name: "Prisoner", rarity: "Legendary", season: 3 },
+      { name: "Randall", rarity: "Legendary", season: 3 },
+      { name: "Shadow Peach", rarity: "Legendary", season: 3 },
+      { name: "Spy's Texture Pack", rarity: "Legendary", season: 3 },
+      { name: "Wiggler's Milk Saloon", rarity: "Legendary", season: 3 },
+      { name: "Bad Apple", rarity: "Rare", season: 3 },
+      { name: "Boo Ball", rarity: "Rare", season: 3 },
+      { name: "Booster", rarity: "Rare", season: 3 },
+      { name: "Captain Toad", rarity: "Rare", season: 3 },
+      { name: "Crash Bandicoot", rarity: "Rare", season: 3 },
+      { name: "Croco", rarity: "Rare", season: 3 },
+      { name: "Frogger", rarity: "Rare", season: 3 },
+      { name: "Garchomp", rarity: "Rare", season: 3 },
+      { name: "Guppy", rarity: "Rare", season: 3 },
+      { name: "Hooktail", rarity: "Rare", season: 3 },
+      { name: "Isabelle", rarity: "Rare", season: 3 },
+      { name: "Judy Hopps", rarity: "Rare", season: 3 },
+      { name: "Koopa Kid", rarity: "Rare", season: 3 },
+      { name: "Koops", rarity: "Rare", season: 3 },
+      { name: "Maw-Ray", rarity: "Rare", season: 3 },
+      { name: "Mega Man", rarity: "Rare", season: 3 },
+      { name: "N", rarity: "Rare", season: 3 },
+      { name: "Nick Wilde", rarity: "Rare", season: 3 },
+      { name: "Pac-Man", rarity: "Rare", season: 3 },
+      { name: "Popple", rarity: "Rare", season: 3 },
+      { name: "Riki", rarity: "Rare", season: 3 },
+      { name: "Scribblenauts", rarity: "Rare", season: 3 },
+      { name: "Sheena", rarity: "Rare", season: 3 },
+      { name: "Skorne", rarity: "Rare", season: 3 },
+      { name: "Skye", rarity: "Rare", season: 3 },
+      { name: "Sonic", rarity: "Rare", season: 3 },
+      { name: "Spyro", rarity: "Rare", season: 3 },
+      { name: "Tiny Kong", rarity: "Rare", season: 3 },
+      { name: "Whacka", rarity: "Rare", season: 3 },
+      { name: "Yarn Yoshi", rarity: "Rare", season: 3 },
+      { name: "Ace Petey", rarity: "Ultra Rare", season: 3 },
+      { name: "Atomic Boo", rarity: "Ultra Rare", season: 3 },
+      { name: "AVGN", rarity: "Ultra Rare", season: 3 },
+      { name: "Brighton", rarity: "Ultra Rare", season: 3 },
+      { name: "Chunky Kong", rarity: "Ultra Rare", season: 3 },
+      { name: "Cursed", rarity: "Ultra Rare", season: 3 },
+      { name: "Cynthia", rarity: "Ultra Rare", season: 3 },
+      { name: "Don Pianta", rarity: "Ultra Rare", season: 3 },
+      { name: "Doopliss", rarity: "Ultra Rare", season: 3 },
+      { name: "Exor", rarity: "Ultra Rare", season: 3 },
+      { name: "Giant Wiggler", rarity: "Ultra Rare", season: 3 },
+      { name: "Joker", rarity: "Ultra Rare", season: 3 },
+      { name: "Krystal", rarity: "Ultra Rare", season: 3 },
+      { name: "Meeka", rarity: "Ultra Rare", season: 3 },
+      { name: "Ms. Mowz", rarity: "Ultra Rare", season: 3 },
+      { name: "Ness", rarity: "Ultra Rare", season: 3 },
+      { name: "Professor Layton", rarity: "Ultra Rare", season: 3 },
+      { name: "Quincy", rarity: "Ultra Rare", season: 3 },
+      { name: "Rover", rarity: "Ultra Rare", season: 3 },
+      { name: "Teddy and Goose", rarity: "Ultra Rare", season: 3 },
+      { name: "The Great Mighty Poo", rarity: "Ultra Rare", season: 3 },
+      { name: "Twila", rarity: "Ultra Rare", season: 3 },
+      { name: "Wall of Flesh", rarity: "Ultra Rare", season: 3 },
+      { name: "Wally Nickels", rarity: "Ultra Rare", season: 3 },
+      { name: "6 Iron", rarity: "Uncommon", season: 3 },
+      { name: "Alien", rarity: "Uncommon", season: 3 },
+      { name: "Battletoads", rarity: "Uncommon", season: 3 },
+      { name: "Boomerang Monkey", rarity: "Uncommon", season: 3 },
+      { name: "Bunker Putt", rarity: "Uncommon", season: 3 },
+      { name: "Chomp Call", rarity: "Uncommon", season: 3 },
+      { name: "Chrome Dino", rarity: "Uncommon", season: 3 },
+      { name: "Clown Car", rarity: "Uncommon", season: 3 },
+      { name: "Club Penguin", rarity: "Uncommon", season: 3 },
+      { name: "DK Bongos", rarity: "Uncommon", season: 3 },
+      { name: "Dunban", rarity: "Uncommon", season: 3 },
+      { name: "Funky Kong", rarity: "Uncommon", season: 3 },
+      { name: "Ghost T", rarity: "Uncommon", season: 3 },
+      { name: "Glydon", rarity: "Uncommon", season: 3 },
+      { name: "Grubba", rarity: "Uncommon", season: 3 },
+      { name: "Jabble", rarity: "Uncommon", season: 3 },
+      { name: "Line Piece", rarity: "Uncommon", season: 3 },
+      { name: "Lloyd", rarity: "Uncommon", season: 3 },
+      { name: "Mandibug Stack", rarity: "Uncommon", season: 3 },
+      { name: "Manta Ramp", rarity: "Uncommon", season: 3 },
+      { name: "Marie", rarity: "Uncommon", season: 3 },
+      { name: "Matt", rarity: "Uncommon", season: 3 },
+      { name: "Meet n Huh", rarity: "Uncommon", season: 3 },
+      { name: "Monita", rarity: "Uncommon", season: 3 },
+      { name: "Morshu", rarity: "Uncommon", season: 3 },
+      { name: "Morton", rarity: "Uncommon", season: 3 },
+      { name: "Mudkip", rarity: "Uncommon", season: 3 },
+      { name: "Octoomba", rarity: "Uncommon", season: 3 },
+      { name: "Pooka", rarity: "Uncommon", season: 3 },
+      { name: "Purple Pikmin", rarity: "Uncommon", season: 3 },
+      { name: "QWOP", rarity: "Uncommon", season: 3 },
+      { name: "Rex", rarity: "Uncommon", season: 3 },
+      { name: "Sackboy", rarity: "Uncommon", season: 3 },
+      { name: "Sharla", rarity: "Uncommon", season: 3 },
+      { name: "Squiggler", rarity: "Uncommon", season: 3 },
+      { name: "Starman", rarity: "Uncommon", season: 3 },
+      { name: "Tails", rarity: "Uncommon", season: 3 },
+      { name: "Waddle Doo", rarity: "Uncommon", season: 3 },
+      { name: "White Pikmin", rarity: "Uncommon", season: 3 },
+      { name: "Whittle", rarity: "Uncommon", season: 3 },
+      { name: "Wii Fit Trainer", rarity: "Uncommon", season: 3 },
     ];
 
     const enchantments = [
@@ -595,13 +789,20 @@
       });
     }
 
-    function populateCardList(search = '') {
+    function populateCardList(search = '', seasonFilter = 'all') {
       const list = document.getElementById('cardList');
       list.innerHTML = '';
       
-      const filtered = cardPool.filter(card => 
+      let filtered = cardPool.filter(card => 
         card.name.toLowerCase().includes(search.toLowerCase())
       );
+
+      // Apply season filter
+      if (seasonFilter === '1+2') {
+        filtered = filtered.filter(card => !card.season || card.season !== 3);
+      } else if (seasonFilter === '3') {
+        filtered = filtered.filter(card => card.season === 3);
+      }
 
       // Define rarity order
       const rarityOrder = {
@@ -636,7 +837,7 @@
         
         item.addEventListener('click', () => {
           selectedCard = card.name;
-          populateCardList(search);
+          populateCardList(search, seasonFilter);
           renderGrid();
         });
 
@@ -806,12 +1007,24 @@
     }
 
     function init() {
+      let currentSeasonFilter = 'all';
+
       populateCardList();
       
       const searchBox = document.getElementById('cardSearch');
+
+      // Season filter buttons
+      document.querySelectorAll('.season-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSeasonFilter = btn.dataset.season;
+          populateCardList(searchBox.value, currentSeasonFilter);
+        });
+      });
       
       searchBox.addEventListener('input', (e) => {
-        populateCardList(e.target.value);
+        populateCardList(e.target.value, currentSeasonFilter);
       });
       
       searchBox.addEventListener('keydown', (e) => {
@@ -823,9 +1036,9 @@
           
           if (exactMatch) {
             selectedCard = exactMatch.name;
-            populateCardList(searchTerm);
+            populateCardList(searchTerm, currentSeasonFilter);
             renderGrid();
-            searchBox.blur(); // Optional: remove focus from search box
+            searchBox.blur();
           }
         }
       });
